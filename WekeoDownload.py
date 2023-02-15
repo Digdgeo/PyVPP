@@ -57,7 +57,7 @@ class wekeo_download:
         self.conn = Client(debug=True)
         
         # Setting the output folder
-        pyhdafolder = os.path.join(os.path.expanduser('~'), 'pyhda')
+        pyhdafolder = os.path.join(os.getcwd(), 'pyhda')
         if not os.path.exists(pyhdafolder):
             os.mkdir(pyhdafolder)
             
