@@ -16,18 +16,52 @@ from pyproj import CRS
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
 
-c = Client(debug=True)
 
+# Login with .hdarc credentials functions
+# Path to credentials file
+file = os.path.join(os.path.expanduser('~'), '.hdarc')
 
+def fillHda(user, password):
+
+    user = 'user: {}'.format(user)
+    passx = 'password: {}'.format(password)
+
+    lines = ['url: https://wekeo-broker.apps.mercator.dpi.wekeo.eu/databroker', user, passx]
+
+    print(file)
+
+    with open(file, 'w') as fp:
+        fp.write('\n'.join(lines))
+        
+        
+def delHdaInfo():
+
+    duser = 'user: '
+    dpassx = 'password: '
+
+    lines = ['url: https://wekeo-broker.apps.mercator.dpi.wekeo.eu/databroker', duser, dpassx]
+
+    print(file)
+
+    with open(file, 'w') as fp:
+        fp.write('\n'.join(lines))
+
+            
+# Here starts the wekeo download class
 class wekeo_download:
     
     
     def __init__(self, dataset, shape, dates, products):
         
-        if not os.path.exists('pyhda'):
-            os.mkdir('pyhda')
+        # Creatting the connection 
+        self.conn = Client(debug=True)
+        
+        # Setting the output folder
+        pyhdafolder = os.path.join(os.path.expanduser('~'), 'pyhda')
+        if not os.path.exists(pyhdafolder):
+            os.mkdir(pyhdafolder)
             
-        os.chdir('pyhda')
+        os.chdir(pyhdafolder)
             
         self.dataset = dataset
         self.shape = shape
@@ -95,11 +129,7 @@ class wekeo_download:
                 {
                   "name": "bbox",
                   "bbox": [
-                      self.bbox_[0], self.bbox_[1], self.bbox_[2], self.bbox_[3]
-                    #transform(self.crs, 'EPSG:4326', [self.bbox['minx'][0]], [self.bbox['miny'][0]])[0][0], #a['Lon'].min(), #-6.614,
-                    #transform(self.crs, 'EPSG:4326', [self.bbox['minx'][0]], [self.bbox['miny'][0]])[1][0], #a['Lat'].min(), #36.945,
-                    #transform(self.crs, 'EPSG:4326', [self.bbox['maxx'][0]], [self.bbox['maxy'][0]])[0][0], #a['Lon'].max(), #-6.381,
-                    #transform(self.crs, 'EPSG:4326', [self.bbox['maxx'][0]], [self.bbox['maxy'][0]])[1][0] #a['Lat'].max(), #37.047                 
+                      self.bbox_[0], self.bbox_[1], self.bbox_[2], self.bbox_[3]          
                           ]
                 }
               ],
@@ -110,8 +140,6 @@ class wekeo_download:
                           "end": self.dates[1]
                         }
               ]}
-            
-            
             
         self.query_moving = {"stringChoiceValues": [
                 {
@@ -132,10 +160,7 @@ class wekeo_download:
                 }                        
               ]
             }
-        
-        #self.query = {**self.query_fix, **self.query_moving}
-        print(self.query_fix['boundingBoxValues'])
-        
+           
         
     def download(self):
         
@@ -154,18 +179,13 @@ class wekeo_download:
                 print('Getting', p)
 
                 self.query['stringChoiceValues'][0]['value'] = p
-                matches = c.search(self.query)
+                matches = self.conn.search(self.query)
                 print(matches)
                 matches.download()
 
             except Exception as e:
                 print(e)
                 continue 
-                
-    def get_proj(self):
-        
-        
-        pass
         
         
     def mosaic(self):
@@ -238,9 +258,7 @@ class wekeo_download:
                     with rasterio.open(out_mosaic, "w", **out_meta) as dest:
                         dest.write(mosaic)
 
-                    # Read Shape file
-                    #with fiona.open(self.shape, "r") as shp:
-                        #shapes = [feature["geometry"] for feature in shp]
+                    # Read Shape file. GeoDataFrame use instead of orginal idea with shapesfiles
                     shapes = [i for i in self.gdf_proj.geometry]
 
                     # Read imagery file
@@ -277,4 +295,5 @@ class wekeo_download:
         print('Mosaicking and clipping...')
         self.mosaic()
         print('cleaning the folder...')
-        self.clean()
+        self.clean()          
+    
