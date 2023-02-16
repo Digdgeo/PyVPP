@@ -6,7 +6,7 @@ The package is based in these python libraries:
 
 - [HDA python package](https://pypi.org/project/hda/) to download data from [Wekeo](https://www.wekeo.eu/). 
 - [Deims](https://pypi.org/project/deims/) is used to get the spatial boundaries of the eLTER sites.
-- Fiona, Geopandas, Shapely and Rasterio are used (as always) to do the spatial parts.
+- Fiona, Geopandas, Shapely and Rasterio are used (as always :)) to do the spatial parts.
 
 The script takes a shapefile as input and get its bounding box to download all the data that intersect with the boundaries. Then it will download all the tiles and mosaic them by dates, when the mosaic is done it will crop the raster with the shapefile boundaries. Keeping in the ouptu folder just the "mosaic_selectedvariable_rec.tif" files. 
 
