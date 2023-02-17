@@ -92,7 +92,7 @@ You can find the list of variables availables in these 2 datasets in Wekeo, but 
 ```python
 # This will create or rewrite in case that it already exists, the .hdarc with your credentials in the home folder.
 # This should be the first thing that you do before run the WekeoDownload process
-fillHda("youruser", "yourpassword)
+fillHda("youruser", "yourpassword")
 ```
 
 ```python
