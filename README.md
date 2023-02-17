@@ -5,8 +5,8 @@ Python package to download data from the [Pan European High Resolution Vegetatio
 <p align="center">
 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTt8DxTzQLF9HztgmOpvdLARFGV7RkbgaBunXl28suqw&s" 
         alt="Picture" 
-        width="300" 
-        height="150" 
+        width="400" 
+        height="225" 
         style="display: block; margin: 0 auto" />
 </p>
 
