@@ -108,19 +108,15 @@ class wekeo_download:
             self.utm = self.crs
             self.gdf_proj = self.gdf
             
-            
-            
-        print(self.utm)
-        #self.bbox = fiona.open(shape).bounds
-        #self.crs = fiona.open(shape).crs    
+        #print(self.utm)  
         self.dates = dates
         self.products = products
         self.datasetlists = {'VPP_Index': "EO:EEA:DAT:CLMS_HRVPP_VI", 'VPP_Pheno': 'EO:EEA:DAT:CLMS_HRVPP_VPP'}
         self.variables = {'VPP_Index': ['PPI', 'NDVI', 'LAI', 'FAPAR'], 
                           'VPP_Pheno': ['SOSD', 'SOSV', 'MAXD', 'MAXV', 'EOSD', 'EOSV']}
         
-             
-        '''PhenoMetrics
+
+        '''Other PhenoMetrics availables in the dataset:
         ['MINV', 'MAXD', 'LENGTH', 'SOSD', 'QFLAG', 
         'EOSV', 'TPROD', 'MAXV', 'AMPL', 'SOSV', 'LSLOPE', 'EOSD', 'RSLOPE', 'SPROD']'''
                
@@ -307,5 +303,4 @@ class wekeo_download:
         print('Mosaicking and clipping...')
         self.mosaic()
         print('cleaning the folder...')
-        self.clean()          
-    
+        self.clean()
