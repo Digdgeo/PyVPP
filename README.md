@@ -89,11 +89,13 @@ You can find the list of variables availables in these 2 datasets in Wekeo, but 
  So, we have add a couple of functions to fix this. fillHda() and delHdaInfo(). These functions are imported when you import the script, so the only thing you need to do is this:
 
  ```python
-# This will create or rewrite in case that it already exists, the .hdarc with your credentials in the home folder. 
+# This will create or rewrite in case that it already exists, the .hdarc with your credentials in the home folder.
+# This should be the first thing that you do before run the WekeoDownload process
 fillHda("youruser", "yourpassword)
 ```
 ```python
-# And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() call
+# And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() call.
+# This should be the last thing that you do before exit your datalab session.
 delHdaInfo()  
 ```
 
