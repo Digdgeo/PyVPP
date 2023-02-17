@@ -5,7 +5,6 @@ import geopandas as gpd
 from hda import Client
 from rasterio.merge import merge
 from rasterio.mask import mask
-from pyproj import Proj
 from pyproj import CRS
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
@@ -291,7 +290,7 @@ class wekeo_download:
                     continue
                     
     def clean(self):
-        """Keep only the mosaic**_rec.tif files in the output folder
+        """Keep only the mosaic_**_rec.tif files in the output folder
         """
 
         for i in os.listdir(os.getcwd()):
@@ -302,7 +301,7 @@ class wekeo_download:
     def run(self):
         """Run the whole process
         """
-        
+
         print('Downloading images...')
         self.download()
         print('Mosaicking and clipping...')
