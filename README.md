@@ -23,10 +23,12 @@ The script accepts both as input, a shapefile or a deims id (**please remember t
 
 At the moment we only offer 2 datasets of all those available in wekeo:
 
-1. VPP_Index (Vegetation Indices): EO:EEA:DAT:CLMS_HRVPP_VI
+1. ### **VPP_Index (Vegetation Indices): EO:EEA:DAT:CLMS_HRVPP_VI**
+
 ![Vegetation Indices](https://i.imgur.com/t53cPMC.png)
 
-2. VPP_Pheno (Phenology and Productivity): EO:EEA:DAT:CLMS_HRVPP_VPP
+2. ### **VPP_Pheno (Phenology and Productivity): EO:EEA:DAT:CLMS_HRVPP_VPP**
+
 ![Phenology](https://i.imgur.com/BaLKr5s.png)
 
  Just a little of the whole catalog offered in Wekeo (you can have a look [here](https://pn-csw.apps.mercator.dpi.wekeo.eu/elastic-csw/service?service=CSW&request=GetRecords&version=2.0.2&ElementSetName=summary&resultType=results&maxRecords=100)), but they are the only 2 that are interested for us in this project that is linked with Phenology. 
@@ -41,7 +43,7 @@ As we said, this is intended to be used for eLTER sites managers and/or research
 
 Very easy, just import the library, select your input shape or deims id site, select the dates and the variables and launch the process with .run(). The typical workflow, once installed, would be like that:
 
-```
+```python
 import pyvpp
 
 # Just replace the second parameter (deimsid for /path/to/yor/shapefile.shp) for your local shapefile in case you want to use a shape.
@@ -53,7 +55,7 @@ There's also the possibility to keep the original Sentinel 2 tiles (this product
 
 In that case you maybe want to run the process once by once, what can be done in the next way:
 
-```
+```python
 import pyvpp
 
 MyWekeo = pyvpp.wekeo_download("VPP_Index", "deimsid:https://deims.org/bcbc866c-3f4f-47a8-bbbc-0a93df6de7b2", ['2018-01-01', '2018-06-30'], ['LAI', 'FAPAR'])
@@ -64,3 +66,37 @@ MyWekeo.mosaic()
 # Cleaning folder of original tiles and whole mosaics
 MyWekeo.clean()
 ```
+You can find the list of variables availables in these 2 datasets in Wekeo, but we work with the 4 vegetation indices:
+
+ 1. **PPI**, Plant Phenology Index
+ 2. **NDVI**, Normalized Difference vegetation Index
+ 3. **LAI**, Leaf Area Index,
+ 4. **FAPAR**, Fraction of Absorbed Photosynthetically Active Radiation
+ 
+ And just with these phenometrics (but you could download any of the availables, just be sure to type correctly their names):
+ 
+ 1. **SOSD**, Start of the season Day of the Year
+ 2. **SOSV**, Start of the season Value of Vegetation Index
+ 3. **MAXD**, Maximun of the season Day of the Year
+ 4. **MAXV**, Maximun of the season Value of Vegetation Index
+ 5. **EOSD**, End of the season Day of the Year
+ 6. **EOSV**, End of the season Value of the Vegetation Index
+
+ ## Important info! (specially for <span style="color:red">Datalab</span> users)
+
+ The download from Wekeo needs a token generated taken into account a config file where yuour user and password are stored (please read [this](https://www.wekeo.eu/docs/hda-python-lib)). If you are running this in your local PC, just cerate your .hdarc file with your personal info and forget about it. But, if you run this in the Datalab (This is just for eLTER users), maybe you don't feel comfortable with the idea of having your credentials stored in the Datalab. Plus, if you don't delete this file and someone runs the script, the data will be downloaded with your account. Not a big deal, but it better to solve that. 
+
+ So, we have add a couple of functions to fix this. fillHda() and delHdaInfo(). These functions are imported when you import the script, so the only thing you need to do is this:
+
+ ```python
+# This will create or rewrite in case that it already exists, the .hdarc with your credentials in the home folder. 
+fillHda("youruser", "yourpassword)
+```
+```python
+# And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() calls
+delHdaInfo()  
+```
+
+## ToDo
+
+To do for you: **Please, don't forget download and delete the Pyhda folder in case you are in the Datalab**. 
