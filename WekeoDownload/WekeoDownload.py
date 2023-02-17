@@ -165,7 +165,7 @@ class wekeo_download:
            
         
     def download(self):
-        """Ths method apply the downoad by sending the query 
+        """This method apply the downoad by sending the query 
         to the connetction with HDA API 
         """
 
