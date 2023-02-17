@@ -16,6 +16,12 @@ from pyproj.database import query_utm_crs_info
 file = os.path.join(os.path.expanduser('~'), '.hdarc')
 
 def fillHda(user, password):
+    """Create/Rewrite the .hdarc config file with user wekeo account data
+
+    Args:
+        user (str): Your Wekeo user
+        password (str): Your Wekeo password
+    """
 
     user = 'user: {}'.format(user)
     passx = 'password: {}'.format(password)
@@ -29,6 +35,8 @@ def fillHda(user, password):
         
         
 def delHdaInfo():
+    """Function to delete personal info from .hdarc file
+    """
 
     duser = 'user: '
     dpassx = 'password: '
@@ -43,10 +51,10 @@ def delHdaInfo():
             
 # Here starts the wekeo download class
 class wekeo_download:
-    
+
     
     def __init__(self, dataset, shape, dates, products):
-        
+
         # Creatting the connection 
         self.conn = Client(debug=True)
         
@@ -63,6 +71,7 @@ class wekeo_download:
         # Let's do the DEIMS part
         if self.shape.startswith('deimsid'):
             
+            # Spanish joke with Don Quijote de a mancha 
             print('Con DEIMS hemos topado amigo Sancho...')
             id_ = self.shape.split('/')[-1]
             self.gdf = deims.getSiteBoundaries(id_)
@@ -157,7 +166,10 @@ class wekeo_download:
            
         
     def download(self):
-        
+        """Ths method apply the downoad by sending the query 
+        to the connetction with HDA API 
+        """
+
         if self.dataset == 'VPP_Pheno':
             
             self.query = {**self.query_fix, **self.query_moving}
@@ -183,7 +195,10 @@ class wekeo_download:
         
         
     def mosaic(self):
-        
+        """This method performs the mosaic with the Sentinel 2 tiles 
+        grouped by variable and date. Also performs the cropping with 
+        the GeoDataFrame boundaries
+        """
         
         path = os.getcwd()
         
@@ -276,14 +291,18 @@ class wekeo_download:
                     continue
                     
     def clean(self):
-        
+        """Keep only the mosaic**_rec.tif files in the output folder
+        """
+
         for i in os.listdir(os.getcwd()):
             if i.endswith('.tif') and not '_rec' in i:
                 os.remove(os.path.join(os.getcwd(), i))
                 
                 
     def run(self):
-                
+        """Run the whole process
+        """
+        
         print('Downloading images...')
         self.download()
         print('Mosaicking and clipping...')
