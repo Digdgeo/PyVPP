@@ -93,7 +93,7 @@ You can find the list of variables availables in these 2 datasets in Wekeo, but 
 fillHda("youruser", "yourpassword)
 ```
 ```python
-# And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() calls
+# And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() call
 delHdaInfo()  
 ```
 
