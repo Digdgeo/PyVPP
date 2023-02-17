@@ -66,6 +66,7 @@ MyWekeo.mosaic()
 # Cleaning folder of original tiles and whole mosaics
 MyWekeo.clean()
 ```
+
 You can find the list of variables availables in these 2 datasets in Wekeo, but we work with the 4 vegetation indices:
 
  1. **PPI**, Plant Phenology Index
@@ -82,17 +83,18 @@ You can find the list of variables availables in these 2 datasets in Wekeo, but 
  5. **EOSD**, End of the season Day of the Year
  6. **EOSV**, End of the season Value of the Vegetation Index
 
- ## Important info! (specially for <span style="color:red">**Datalab**</span> users)
+ ## Important info! (specially for **Datalab** users)
 
- The download from Wekeo needs a token generated taken into account a config file where yuour user and password are stored (please read [this](https://www.wekeo.eu/docs/hda-python-lib)). If you are running this in your local PC, just cerate your .hdarc file with your personal info and forget about it. But, if you run this in the Datalab (This is just for eLTER users), maybe you don't feel comfortable with the idea of having your credentials stored in the Datalab. Plus, if you don't delete this file and someone runs the script, the data will be downloaded with your account. Not a big deal, but it better to solve that. 
+ The download from Wekeo needs a token generated taken into account a config file where yuour user and password are stored (please, read [this](https://www.wekeo.eu/docs/hda-python-lib)). If you are running this in your local PC, just cerate your .hdarc file with your personal info and forget about it. But, if you run this in the Datalab (This is just for eLTER users), maybe you don't feel comfortable with the idea of having your credentials stored in the Datalab. Plus, if you don't delete this file and someone runs the script, the data will be downloaded with your account. Not a big deal, but it better to solve that.
 
- So, we have add a couple of functions to fix this. fillHda() and delHdaInfo(). These functions are imported when you import the script, so the only thing you need to do is this:
-
- ```python
+ So, we have add a couple of functions to fix this. _fillHda()_ and _delHdaInfo()_. These functions are imported when you import the script, so the only thing you need to do is this:
+ 
+```python
 # This will create or rewrite in case that it already exists, the .hdarc with your credentials in the home folder.
 # This should be the first thing that you do before run the WekeoDownload process
 fillHda("youruser", "yourpassword)
 ```
+
 ```python
 # And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() call.
 # This should be the last thing that you do before exit your datalab session.
