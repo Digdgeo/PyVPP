@@ -15,7 +15,7 @@ The package is based in these magnificient python libraries:
 
 - [HDA python package](https://pypi.org/project/hda/) to download data from [Wekeo](https://www.wekeo.eu/). 
 - [Deims](https://pypi.org/project/deims/) is a python package to get data from the Dynamic Ecological Information Management System - Site and dataset registry ([DEIMS-SDR](https://deims.org/)). We use this library to quickly get the spatial boundaries of the eLTER sites.
-- Fiona, Geopandas, Shapely and Rasterio are used (as always :blush:) to do the spatial parts related with getting extents, reprojecting, mosaicking and clipping parts.
+- [PyProj](https://pypi.org/project/pyproj/), [Geopandas](https://pypi.org/project/geopandas/) and [Rasterio](https://pypi.org/project/rasterio/) are used (as always :blush:) to do the spatial parts related with getting extents, reprojecting, mosaicking and clipping.
 
 ## What we do
 

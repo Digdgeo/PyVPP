@@ -1,16 +1,10 @@
 import os
-import fiona
 import rasterio
-import numpy as np
 import deims
 import geopandas as gpd
 from hda import Client
-from shapely.geometry import Polygon
 from rasterio.merge import merge
-from rasterio.plot import show
-from rasterio.plot import show_hist
 from rasterio.mask import mask
-from fiona.transform import transform
 from pyproj import Proj
 from pyproj import CRS
 from pyproj.aoi import AreaOfInterest
