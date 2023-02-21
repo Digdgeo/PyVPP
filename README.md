@@ -1,7 +1,7 @@
 # PyVPP
 
-Python package to download data from the [Pan European High Resolution Vegetation Phenology and Productivity](https://land.copernicus.eu/pan-european/biophysical-parameters/high-resolution-vegetation-phenology-and-productivity) part of the Copernicus Land Monitoring Service (CLMS). This package have been developed within the framework of the [eLTER Plus](https://elter-ri.eu/) and [SUMHAL](https://lifewatcheric-sumhal.csic.es/descripcion-del-proyecto/) projects, as  a  tool  aimed  at  scientists  and  managers  of  the  sites  integrated  in  the  eLTER  network,  for  which  long-term  phenology  monitoring  can  be  assessed. 
-       |  
+Python package to download data from the [Pan European High Resolution Vegetation Phenology and Productivity](https://land.copernicus.eu/pan-european/biophysical-parameters/high-resolution-vegetation-phenology-and-productivity) part of the Copernicus Land Monitoring Service (CLMS). This package have been developed within the framework of the [eLTER H2020](https://elter-ri.eu/) and [SUMHAL](https://lifewatcheric-sumhal.csic.es/descripcion-del-proyecto/) projects, as  a  tool  aimed  at  scientists  and  managers  of  the  sites  integrated  in  the  eLTER  network,  for  which  long-term  phenology  monitoring  can  be  assessed. 
+         
 ![](https://i.imgur.com/Sv9LfYj.png)
 
 ## What we use
