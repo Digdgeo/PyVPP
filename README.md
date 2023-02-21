@@ -13,7 +13,7 @@ The package is based in these magnificient python libraries:
 
 ## What we do
 
-The script accepts both as input, a shapefile or a deims id (**please remember to add "deimsid:yoursiteid" in case you use this option**), then it will read it as a Geodataframe, and it will download all the tiles that intersect the Bounding Box of the input boundaries. Once the tiles are downloaded it will mosaic them gruping by dates and products and it will crop the mosaics with the boundaries. Keeping in the ouptu folder (it will create a _/pyhda_ folder in your current working directory) just the "mosaic_selectedvariable_rec.tif" files. 
+The script accepts both as input, a shapefile or a deims id (**please remember to add "deimsid:yoursiteid" in case you use this option**), then it will read it as a Geodataframe, and it will download all the tiles that intersect the Bounding Box of the input boundaries. Once the tiles are downloaded it will mosaic them gruping by dates and products and it will crop the mosaics with the boundaries. Keeping in the ouptu folder (it will create a _/pyhda_ folder in your current working directory) just the "_mosaic_selectedvariable_rec.tif_" files. 
 
 At the moment we only offer 2 datasets of all those available in wekeo:
 
