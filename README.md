@@ -1,13 +1,9 @@
 # PyVPP
 
-Python package to download data from the [Pan European High Resolution Vegetation Phenology and Productivity](https://land.copernicus.eu/pan-european/biophysical-parameters/high-resolution-vegetation-phenology-and-productivity) part of the Copernicus Land Monitoring Service (CLMS). This script was originally made to download some phenometrics and vegetation indexes for some selected sites in the European Long Term Ecological Research Program ([eLTER](https://elter-ri.eu/)). 
-
+Python package to download data from the [Pan European High Resolution Vegetation Phenology and Productivity](https://land.copernicus.eu/pan-european/biophysical-parameters/high-resolution-vegetation-phenology-and-productivity) part of the Copernicus Land Monitoring Service (CLMS). This package have been developed within the framework of the [eLTER Plus](https://elter-ri.eu/) and [SUMHAL](https://lifewatcheric-sumhal.csic.es/descripcion-del-proyecto/) projects, as  a  tool  aimed  at  scientists  and  managers  of  the  sites  integrated  in  the  eLTER  network,  for  which  long-term  phenology  monitoring  can  be  assessed. 
+       |  
 <p align="center">
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTt8DxTzQLF9HztgmOpvdLARFGV7RkbgaBunXl28suqw&s" 
-        alt="Picture" 
-        width="300" 
-        height="200" 
-        style="display: block; margin: 0 auto" />
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTt8DxTzQLF9HztgmOpvdLARFGV7RkbgaBunXl28suqw&s" width="300"/> <img src="https://lifewatcheric-sumhal.csic.es/wp-content/uploads/2022/05/logo_sumhal-V2.-logo-mejorado.png" width="200"/>
 </p>
 
 ## What we use
