@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyvpp"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
   { name="Diego García Díaz", email="digd.geografo@gmail.com" }, { name="Ricardo Díaz-Delgado", email="rdiaz@ebd.csic.es" }
 ]
@@ -16,6 +16,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+[options]
+install_requires = ["hda", "deims", "rasterio", "pyproj", "geopandas"] 
 
 [project.urls]
 "Homepage" = "https://github.com/Digdgeo/PyVPP"
