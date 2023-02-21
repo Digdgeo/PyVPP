@@ -2,13 +2,7 @@
 
 Python package to download data from the [Pan European High Resolution Vegetation Phenology and Productivity](https://land.copernicus.eu/pan-european/biophysical-parameters/high-resolution-vegetation-phenology-and-productivity) part of the Copernicus Land Monitoring Service (CLMS). This package have been developed within the framework of the [eLTER Plus](https://elter-ri.eu/) and [SUMHAL](https://lifewatcheric-sumhal.csic.es/descripcion-del-proyecto/) projects, as  a  tool  aimed  at  scientists  and  managers  of  the  sites  integrated  in  the  eLTER  network,  for  which  long-term  phenology  monitoring  can  be  assessed. 
        |  
-<p align="center">
-<img src="https://www.csc.fi/documents/portlet_file_entry/10180/400x197_projektilogot__elter_plus+%281%29.jpg/a6065972-89e8-52fb-dd56-808138960bed" 
-        alt="Picture" 
-        width="300" 
-        height="200" 
-        style="display: block; margin: 0 auto" />
-</p>
+![](https://i.imgur.com/Sv9LfYj.png)
 
 ## What we use
 The package is based in these magnificient python libraries:
