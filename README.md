@@ -3,7 +3,11 @@
 Python package to download data from the [Pan European High Resolution Vegetation Phenology and Productivity](https://land.copernicus.eu/pan-european/biophysical-parameters/high-resolution-vegetation-phenology-and-productivity) part of the Copernicus Land Monitoring Service (CLMS). This package have been developed within the framework of the [eLTER Plus](https://elter-ri.eu/) and [SUMHAL](https://lifewatcheric-sumhal.csic.es/descripcion-del-proyecto/) projects, as  a  tool  aimed  at  scientists  and  managers  of  the  sites  integrated  in  the  eLTER  network,  for  which  long-term  phenology  monitoring  can  be  assessed. 
        |  
 <p align="center">
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTt8DxTzQLF9HztgmOpvdLARFGV7RkbgaBunXl28suqw&s" width="300"/> <img src="https://lifewatcheric-sumhal.csic.es/wp-content/uploads/2022/05/logo_sumhal-V2.-logo-mejorado.png" width="200"/>
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTt8DxTzQLF9HztgmOpvdLARFGV7RkbgaBunXl28suqw&s" 
+        alt="Picture" 
+        width="300" 
+        height="200" 
+        style="display: block; margin: 0 auto" />
 </p>
 
 ## What we use
@@ -11,7 +15,7 @@ The package is based in these magnificient python libraries:
 
 - [HDA python package](https://pypi.org/project/hda/) to download data from [Wekeo](https://www.wekeo.eu/). 
 - [Deims](https://pypi.org/project/deims/) is a python package to get data from the Dynamic Ecological Information Management System - Site and dataset registry ([DEIMS-SDR](https://deims.org/)). We use this library to quickly get the spatial boundaries of the eLTER sites.
-- Fiona, Geopandas, Shapely and Rasterio are used (as always :blush:) to do the spatial parts related with getting extents, reprojecting, mosaicking and clipping parts.
+- [PyProj](https://pypi.org/project/pyproj/), [Geopandas](https://pypi.org/project/geopandas/) and [Rasterio](https://pypi.org/project/rasterio/) are used (as always :blush:) to do the spatial parts related with getting extents, reprojecting, mosaicking and clipping.
 
 ## What we do
 
@@ -62,6 +66,7 @@ MyWekeo.mosaic()
 # Cleaning folder of original tiles and whole mosaics
 MyWekeo.clean()
 ```
+
 You can find the list of variables availables in these 2 datasets in Wekeo, but we work with the 4 vegetation indices:
 
  1. **PPI**, Plant Phenology Index
@@ -78,18 +83,21 @@ You can find the list of variables availables in these 2 datasets in Wekeo, but 
  5. **EOSD**, End of the season Day of the Year
  6. **EOSV**, End of the season Value of the Vegetation Index
 
- ## Important info! (specially for <span style="color:red">Datalab</span> users)
+ ## Important info! (specially for **Datalab** users)
 
- The download from Wekeo needs a token generated taken into account a config file where yuour user and password are stored (please read [this](https://www.wekeo.eu/docs/hda-python-lib)). If you are running this in your local PC, just cerate your .hdarc file with your personal info and forget about it. But, if you run this in the Datalab (This is just for eLTER users), maybe you don't feel comfortable with the idea of having your credentials stored in the Datalab. Plus, if you don't delete this file and someone runs the script, the data will be downloaded with your account. Not a big deal, but it better to solve that. 
+ The download from Wekeo needs a token generated taken into account a config file where yuour user and password are stored (please, read [this](https://www.wekeo.eu/docs/hda-python-lib)). If you are running this in your local PC, just cerate your .hdarc file with your personal info and forget about it. But, if you run this in the Datalab (This is just for eLTER users), maybe you don't feel comfortable with the idea of having your credentials stored in the Datalab. Plus, if you don't delete this file and someone runs the script, the data will be downloaded with your account. Not a big deal, but it better to solve that.
 
- So, we have add a couple of functions to fix this. fillHda() and delHdaInfo(). These functions are imported when you import the script, so the only thing you need to do is this:
-
- ```python
-# This will create or rewrite in case that it already exists, the .hdarc with your credentials in the home folder. 
-fillHda("youruser", "yourpassword)
-```
+ So, we have add a couple of functions to fix this. _fillHda()_ and _delHdaInfo()_. These functions are imported when you import the script, so the only thing you need to do is this:
+ 
 ```python
-# And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() calls
+# This will create or rewrite in case that it already exists, the .hdarc with your credentials in the home folder.
+# This should be the first thing that you do before run the WekeoDownload process
+fillHda("youruser", "yourpassword")
+```
+
+```python
+# And just be sure to run the del funciton when you are done. This will left the .hdarc but without any credentials in it, just white spaces waiting for the next fillHda() call.
+# This should be the last thing that you do before exit your datalab session.
 delHdaInfo()  
 ```
 

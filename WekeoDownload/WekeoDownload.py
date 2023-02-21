@@ -1,17 +1,10 @@
 import os
-import fiona
 import rasterio
-import numpy as np
 import deims
 import geopandas as gpd
 from hda import Client
-from shapely.geometry import Polygon
 from rasterio.merge import merge
-from rasterio.plot import show
-from rasterio.plot import show_hist
 from rasterio.mask import mask
-from fiona.transform import transform
-from pyproj import Proj
 from pyproj import CRS
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
@@ -22,6 +15,12 @@ from pyproj.database import query_utm_crs_info
 file = os.path.join(os.path.expanduser('~'), '.hdarc')
 
 def fillHda(user, password):
+    """Create/Rewrite the .hdarc config file with user wekeo account data
+
+    Args:
+        user (str): Your Wekeo user
+        password (str): Your Wekeo password
+    """
 
     user = 'user: {}'.format(user)
     passx = 'password: {}'.format(password)
@@ -35,6 +34,8 @@ def fillHda(user, password):
         
         
 def delHdaInfo():
+    """Function to delete personal info from .hdarc file
+    """
 
     duser = 'user: '
     dpassx = 'password: '
@@ -49,10 +50,10 @@ def delHdaInfo():
             
 # Here starts the wekeo download class
 class wekeo_download:
-    
+
     
     def __init__(self, dataset, shape, dates, products):
-        
+
         # Creatting the connection 
         self.conn = Client(debug=True)
         
@@ -69,6 +70,7 @@ class wekeo_download:
         # Let's do the DEIMS part
         if self.shape.startswith('deimsid'):
             
+            # Spanish joke with Don Quijote de a mancha 
             print('Con DEIMS hemos topado amigo Sancho...')
             id_ = self.shape.split('/')[-1]
             self.gdf = deims.getSiteBoundaries(id_)
@@ -106,19 +108,15 @@ class wekeo_download:
             self.utm = self.crs
             self.gdf_proj = self.gdf
             
-            
-            
-        print(self.utm)
-        #self.bbox = fiona.open(shape).bounds
-        #self.crs = fiona.open(shape).crs    
+        #print(self.utm)  
         self.dates = dates
         self.products = products
         self.datasetlists = {'VPP_Index': "EO:EEA:DAT:CLMS_HRVPP_VI", 'VPP_Pheno': 'EO:EEA:DAT:CLMS_HRVPP_VPP'}
         self.variables = {'VPP_Index': ['PPI', 'NDVI', 'LAI', 'FAPAR'], 
                           'VPP_Pheno': ['SOSD', 'SOSV', 'MAXD', 'MAXV', 'EOSD', 'EOSV']}
         
-             
-        '''PhenoMetrics
+
+        '''Other PhenoMetrics availables in the dataset:
         ['MINV', 'MAXD', 'LENGTH', 'SOSD', 'QFLAG', 
         'EOSV', 'TPROD', 'MAXV', 'AMPL', 'SOSV', 'LSLOPE', 'EOSD', 'RSLOPE', 'SPROD']'''
                
@@ -163,7 +161,10 @@ class wekeo_download:
            
         
     def download(self):
-        
+        """This method apply the downoad by sending the query 
+        to the connetction with HDA API 
+        """
+
         if self.dataset == 'VPP_Pheno':
             
             self.query = {**self.query_fix, **self.query_moving}
@@ -189,7 +190,10 @@ class wekeo_download:
         
         
     def mosaic(self):
-        
+        """This method performs the mosaic with the Sentinel 2 tiles 
+        grouped by variable and date. Also performs the cropping with 
+        the GeoDataFrame boundaries
+        """
         
         path = os.getcwd()
         
@@ -282,18 +286,21 @@ class wekeo_download:
                     continue
                     
     def clean(self):
-        
+        """Keep only the mosaic_**_rec.tif files in the output folder
+        """
+
         for i in os.listdir(os.getcwd()):
             if i.endswith('.tif') and not '_rec' in i:
                 os.remove(os.path.join(os.getcwd(), i))
                 
                 
     def run(self):
-                
+        """Run the whole process
+        """
+
         print('Downloading images...')
         self.download()
         print('Mosaicking and clipping...')
         self.mosaic()
         print('cleaning the folder...')
-        self.clean()          
-    
+        self.clean()
