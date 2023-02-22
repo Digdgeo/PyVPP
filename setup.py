@@ -17,7 +17,7 @@ setup(
 	name='pyvpp',
 	version='0.1.1',
 	description='Python package to search, download, mosaic and crop sentinel 2 HrVPP products',
-	long_description=read('README.md'),
+	long_description="README.md",
 	url='https://github.com/Digdgeo/PyVPP',
 	python_requires='>=3.7',
 	author='Diego Garcia Diaz',
