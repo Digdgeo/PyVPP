@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "deims", "hda", "geopandas", "rasterio", "pyproj"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyvpp"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="Diego García Díaz", email="digd.geografo@gmail.com" }, { name="Ricardo Díaz-Delgado", email="rdiaz@ebd.csic.es" }
 ]
@@ -16,9 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
-[options]
-install_requires = ["hda", "deims", "rasterio", "pyproj", "geopandas"] 
+dependencies = ["hda", "deims", "rasterio", "pyproj", "geopandas"] 
 
 [project.urls]
 "Homepage" = "https://github.com/Digdgeo/PyVPP"
