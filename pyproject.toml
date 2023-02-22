@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyvpp"
-version = "0.1.4"
+version = "0.1.5"
 description = "Python package to download phenological data from Wekeo (HR-VPP datsets from Sentinel 2)\u001b[D\u001b["
 authors = ["Diego García Díaz <digd.geografo@gmail.com>", "Ricardo Díaz-Delgado <rdiaz@ebd.csic.es>"]
 maintainers = ["Diego García Díaz <digd.geografo@gmail.com>"]
