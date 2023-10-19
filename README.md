@@ -15,23 +15,31 @@ The package is based in these magnificient python libraries:
 
 The script accepts both as input, a shapefile or a deims id (**please remember to add "deimsid:yoursiteid" in case you use this option**), then it will read it as a Geodataframe, and it will download all the tiles that intersect the Bounding Box of the input boundaries. Once the tiles are downloaded it will mosaic them gruping by dates and products and it will crop the mosaics with the boundaries. Keeping in the ouptu folder (it will create a _/pyhda_ folder in your current working directory) just the "_mosaic_selectedvariable_rec.tif_" files. 
 
-At the moment we only offer 2 datasets of all those available in wekeo:
+At the moment we offer 4 datasets:
 
 1. ### **VPP_Index (Vegetation Indices): EO:EEA:DAT:CLMS_HRVPP_VI**
 
-![Vegetation Indices](https://i.imgur.com/t53cPMC.png)
+![Vegetation Indices](https://i.imgur.com/hJ4ORqr.png)
 
 2. ### **VPP_Pheno (Phenology and Productivity): EO:EEA:DAT:CLMS_HRVPP_VPP**
 
-![Phenology](https://i.imgur.com/BaLKr5s.png)
+![Phenology](https://i.imgur.com/L3xuXb1.png)
 
- Just a little of the whole catalog offered in Wekeo (you can have a look [here](https://pn-csw.apps.mercator.dpi.wekeo.eu/elastic-csw/service?service=CSW&request=GetRecords&version=2.0.2&ElementSetName=summary&resultType=results&maxRecords=100)), but they are the only 2 that are interested for us in this project that is linked with Phenology. 
+3. ### **VPP_Seasonal Trajectories (Vegetation Indices): EO:EEA:DAT:CLMS_HRVPP_ST**
 
- It's very likely that we will add more datasets in the near future. Even better, if you find this package interesting and want to add some more datasets, please fell free to do it (and maybe share that with us with a Pull Requests :wink:)
+![Vegetation Indices ST](https://i.imgur.com/vBTpYiC.png)
+
+4. ### **Land Surface Temperature Radiometer (SLSTR: EO:ESA:DAT:SENTINEL-3:SL_2_LST___**
+
+![LST](https://i.imgur.com/68y4zLF.png)
+
+ Just a little of the whole catalog offered in Wekeo (you can have a look [here](https://pn-csw.apps.mercator.dpi.wekeo.eu/elastic-csw/service?service=CSW&request=GetRecords&version=2.0.2&ElementSetName=summary&resultType=results&maxRecords=100)), but they are the ones that we are interested in. 
+
+ It's very likely that we will add more datasets in the near future. Even better, if you find this package helpful and you want to add some more datasets, please feel free to do it (and maybe share that with us with a Pull Requests :wink:)
 
 ## Why a package
 
-As we said, this is intended to be used for eLTER sites managers and/or researchers, but it could be used to download data for any part of the globe (where data exists, of course). So we consider that this script could be useful for people moreover eLTER network. Besides, we think that have a python package to import it, is an approach more "friendly to use" than having a long script to copy and paste in different enviroments. 
+As we said, this is intended to be used for eLTER sites managers and/or researchers, but it could be used to download data for any part of the globe (where data exists, of course). So we consider that this script could be profited for people moreover eLTER network. Plus, we think that have a python package to import it, is an approach more "friendly to use" than having a long script to copy and paste in different enviroments. 
 
 ## How to use it
 
@@ -76,6 +84,15 @@ You can find the list of variables availables in these 2 datasets in Wekeo, but 
  4. **MAXV**, Maximun of the season Value of Vegetation Index
  5. **EOSD**, End of the season Day of the Year
  6. **EOSV**, End of the season Value of the Vegetation Index
+
+ For the Seasonal Trajectories the only one product is the 10 days improved PPI index:
+
+ 1. **PPI**, Plant Phenology Index
+
+And last, for the SLSTR the only product available is the Land Surface Temperature:
+
+1. **SL_2_LST___**, Land Surface Temperature
+
 
  ## Important info! (specially for **Datalab** users)
 
