@@ -1,4 +1,5 @@
 import os
+import zipfile
 import rasterio
 import deims
 import geopandas as gpd
@@ -53,6 +54,8 @@ class wekeo_download:
 
     
     def __init__(self, dataset, shape, dates, products):
+
+        print('testing script')
 
         # Creatting the connection 
         self.conn = Client(debug=True)
@@ -111,9 +114,11 @@ class wekeo_download:
         #print(self.utm)  
         self.dates = dates
         self.products = products
-        self.datasetlists = {'VPP_Index': "EO:EEA:DAT:CLMS_HRVPP_VI", 'VPP_Pheno': 'EO:EEA:DAT:CLMS_HRVPP_VPP'}
-        self.variables = {'VPP_Index': ['PPI', 'NDVI', 'LAI', 'FAPAR'], 
-                          'VPP_Pheno': ['SOSD', 'SOSV', 'MAXD', 'MAXV', 'EOSD', 'EOSV']}
+        self.datasetlists = {'VPP_Index': "EO:EEA:DAT:CLMS_HRVPP_VI", 'VPP_ST': "EO:EEA:DAT:CLMS_HRVPP_ST", 'VPP_Pheno': 'EO:EEA:DAT:CLMS_HRVPP_VPP', 'SLSTR': "EO:ESA:DAT:SENTINEL-3:SL_2_LST___"}
+        self.variables = {'VPP_Index': ['PPI', 'NDVI', 'LAI', 'FAPAR'],
+                          'VPP_ST': ['PPI'], 
+                          'VPP_Pheno': ['SOSD', 'SOSV', 'MAXD', 'MAXV', 'EOSD', 'EOSV'],
+                          'SLSTR': ['SL_2_LST___']}
         
 
         '''Other PhenoMetrics availables in the dataset:
@@ -292,7 +297,15 @@ class wekeo_download:
         for i in os.listdir(os.getcwd()):
             if i.endswith('.tif') and not '_rec' in i:
                 os.remove(os.path.join(os.getcwd(), i))
-                
+
+            elif i.endswith('.zip'):
+                zip_ = os.path.join(os.getcwd(), i)
+                with zipfile.ZipFile(zip_, 'r') as zip_ref:
+                    zip_ref.extractall(os.getcwd())
+                #Remove the original zip files
+                os.remove(os.path.join(os.getcwd(), i))
+            else:
+                continue
                 
     def run(self):
         """Run the whole process
