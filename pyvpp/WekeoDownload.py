@@ -4,14 +4,12 @@ import requests
 import rasterio
 import deims
 import geopandas as gpd
-from hda import Client, Configuration  # Importamos Configuration también
+from hda import Client, Configuration
 from rasterio.merge import merge
 from rasterio.mask import mask
-from pyproj import CRS
+from pyproj import CRS, Transformer
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
-from pyproj import Transformer
-
 
 def create_hdarc(user, password):
     """
@@ -52,21 +50,22 @@ def delete_hdarc():
 
 class wekeo_download:
     
-    def __init__(self, dataset, shape, dates, products, user, password):
+    def __init__(self, dataset, shape, dates, products):
+
         print('Initializing wekeo_download script...')
 
-        self.user = user
-        self.password = password
+        #self.user = user
+        #self.password = password
 
         # Obtener el token de acceso
-        self.token = self.get_access_token()
-        if not self.token:
-            raise RuntimeError("Failed to authenticate and obtain access token.")
+        #self.token = self.get_access_token()
+        #if not self.token:
+            #raise RuntimeError("Failed to authenticate and obtain access token.")
 
         # Crear la conexión
-        conf = Configuration(user=user, password=password)
-        self.conn = Client(config=conf)
-        #self.conn = Client()
+        #conf = Configuration(user=user, password=password)
+        #self.conn = Client(config=conf)
+        self.conn = Client()
 
         # Crear la carpeta de salida y continuar la inicialización
         self.pyhda = os.path.join(os.getcwd(), 'pyhda')
@@ -90,16 +89,11 @@ class wekeo_download:
 
         # Convertir la caja delimitadora a coordenadas geográficas (EPSG:4326) si es necesario
         if not self.crs.is_geographic:
-            self.bbox_utm = self.gdf.total_bounds
-            transformer = Transformer.from_crs(self.crs, "EPSG:4326", always_xy=True)
-            minx, miny = transformer.transform(self.bbox_utm[0], self.bbox_utm[1])
-            maxx, maxy = transformer.transform(self.bbox_utm[2], self.bbox_utm[3])
-            self.bbox = [minx, miny, maxx, maxy]
             self.gdf_proj = self.gdf.to_crs("EPSG:4326")  # Proyectar a WGS84 (geográficas)
         else:
-            self.bbox = self.gdf.total_bounds
             self.gdf_proj = self.gdf
 
+        self.bbox = list(self.gdf_proj.total_bounds)
         print(f"Converted bbox to geographic coordinates: {self.bbox}")
 
         self.dates = dates
@@ -110,6 +104,7 @@ class wekeo_download:
             'VPP_Pheno': 'EO:EEA:DAT:CLMS_HRVPP_VPP',
             'SLSTR': "EO:ESA:DAT:SENTINEL-3:SL_2_LST___"
         }
+        self.dataset_name = self.datasetlists[self.dataset]
 
     def get_access_token(self):
         """Obtener el token de acceso de la API de Wekeo"""
@@ -131,9 +126,9 @@ class wekeo_download:
         for product in self.products:
             print(f'Getting product: {product}')
             query = {
-                'dataset_id': "EO:EEA:DAT:CLMS_HRVPP_VI",
+                'dataset_id': self.dataset_name,
                 'productType': product,                
-                'bbox': [-6.47514014469748, 36.870399417887654, -6.215630498836518, 37.12946619848626],
+                'bbox': self.bbox,
                 'startdate': f"{self.dates[0]}T00:00:00.000Z",
                 'enddate': f"{self.dates[1]}T23:59:59.999Z"
             }
