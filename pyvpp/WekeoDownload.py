@@ -134,6 +134,28 @@ class wekeo_download:
             }
 
             # Realizar búsqueda
+            """try:
+                matches = self.conn.search(query)
+                print(f"Matches response: {matches}")
+
+                # Filtrar coincidencias que contengan "T29" en el ID
+                filtered_matches = [result for result in matches.results if "T29" in result['id']]
+                print(f"Found {len(filtered_matches)} matches for product: {product} in zone T29")
+
+                # Seleccionar solo las coincidencias impares
+                odd_matches = filtered_matches[::2]  # Seleccionar elementos impares
+                print(f"Found {len(odd_matches)} matches in odd positions for product: {product}")
+
+                # Cambiar el directorio de trabajo temporalmente para realizar la descarga
+                os.chdir(self.pyhda)
+                for match in odd_matches:
+                    self.conn.download(match['id'])
+                    print(f"Downloaded {match['id']} successfully.")
+                os.chdir("..")  # Regresar al directorio original si es necesario
+
+            except Exception as e:
+                print(f"Error downloading {product}: {e}")"""
+
             try:
                 matches = self.conn.search(query)
                 print(f"Matches response: {matches}")
@@ -265,26 +287,21 @@ class wekeo_download:
 
                     
     def clean(self):
-
-        """Keep only the mosaic_**_rec.tif files in the output folder and delete everything else."""
+        
+        """Keep only the .rec.tif files in the output folder and delete everything else."""
 
         for filename in os.listdir(self.pyhda):
             file_path = os.path.join(self.pyhda, filename)
 
-            # Comprobar si el archivo es un .tif y si contiene ".rec" en el nombre
-            if not (filename.endswith('.tif') and '.rec' in filename):
-                # Si el archivo no cumple las condiciones, eliminarlo
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.remove(file_path)
-                        print(f"Deleted file: {file_path}")
-                    elif os.path.isdir(file_path):
-                        # Si es una carpeta, eliminar todo su contenido de manera recursiva
-                        import shutil
-                        shutil.rmtree(file_path)
-                        print(f"Deleted directory: {file_path}")
-                except Exception as e:
-                    print(f"Failed to delete {file_path}. Reason: {e}")
+            # Si es un directorio, eliminarlo por completo
+            if os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+                print(f"Deleted directory: {file_path}")
+            # Si es un archivo y no cumple la condición de ".rec.tif", eliminarlo
+            elif os.path.isfile(file_path) and not filename.endswith('.rec.tif'):
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}")
+
                 
     def run(self):
 
