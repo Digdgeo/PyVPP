@@ -13,6 +13,42 @@ from pyproj.database import query_utm_crs_info
 from pyproj import Transformer
 
 
+def create_hdarc(user, password):
+    """
+    Crea un archivo .hdarc con las credenciales proporcionadas.
+    
+    :param user: Nombre de usuario de Wekeo.
+    :param password: Contraseña de Wekeo.
+    """
+    hdarc_content = f"""
+    {{
+        "user": "{user}",
+        "password": "{password}"
+    }}
+    """
+
+    # Guardar el contenido en el archivo .hdarc en el directorio del usuario
+    home_directory = os.path.expanduser("~")
+    hdarc_path = os.path.join(home_directory, ".hdarc")
+
+    with open(hdarc_path, "w") as hdarc_file:
+        hdarc_file.write(hdarc_content.strip())
+    print(f"Archivo .hdarc creado en: {hdarc_path}")
+
+
+def delete_hdarc():
+    """
+    Elimina el archivo .hdarc del directorio del usuario si existe.
+    """
+    home_directory = os.path.expanduser("~")
+    hdarc_path = os.path.join(home_directory, ".hdarc")
+
+    if os.path.exists(hdarc_path):
+        os.remove(hdarc_path)
+        print(f"Archivo .hdarc eliminado de: {hdarc_path}")
+    else:
+        print("No se encontró el archivo .hdarc.")
+
 
 class wekeo_download:
     
