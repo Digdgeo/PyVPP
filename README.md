@@ -111,6 +111,10 @@ fillHda("youruser", "yourpassword")
 # This should be the last thing that you do before exit your datalab session.
 delHdaInfo()  
 ```
+## 2024-10-31 (Halloween :jack_o_lantern:) Update 
+
+Please note that new HDA versions have limitations on the number of images available to download per hour (the standard is 100 images).
+
 
 ## ToDo
 

@@ -1,4 +1,6 @@
 import os
+import time
+import shutil
 import zipfile
 import requests
 import rasterio
@@ -10,6 +12,8 @@ from rasterio.mask import mask
 from pyproj import CRS, Transformer
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_utm_crs_info
+from shapely.geometry import box  # Añade esta línea
+
 
 def create_hdarc(user, password):
     """
@@ -46,6 +50,23 @@ def delete_hdarc():
         print(f"Archivo .hdarc eliminado de: {hdarc_path}")
     else:
         print("No se encontró el archivo .hdarc.")
+
+
+def get_utm_zones(geometry):
+    """
+    Obtiene una lista de husos UTM que cubren la geometría proporcionada.
+    
+    :param geometry: Geometría (shapely geometry).
+    :return: Lista de husos UTM (ejemplo: ['T29', 'T30']).
+    """
+    utm_zones = set()
+    minx, miny, maxx, maxy = geometry.bounds
+    lons = [minx, maxx]
+    for lon in lons:
+        utm_zone_number = int((lon + 180) / 6) % 60 + 1
+        utm_zone = f"T{utm_zone_number:02d}"
+        utm_zones.add(utm_zone)
+    return list(utm_zones)
 
 
 class wekeo_download:
@@ -96,6 +117,10 @@ class wekeo_download:
         self.bbox = list(self.gdf_proj.total_bounds)
         print(f"Converted bbox to geographic coordinates: {self.bbox}")
 
+        self.geometry = self.gdf_proj.geometry.unary_union  # Geometría unificada
+        self.utm_zones = get_utm_zones(self.geometry)
+        print(f"Husos UTM para el AOI: {self.utm_zones}")
+
         self.dates = dates
         self.products = products
         self.datasetlists = {
@@ -122,168 +147,132 @@ class wekeo_download:
             return None
 
     def download(self):
-
         for product in self.products:
             print(f'Getting product: {product}')
             query = {
                 'dataset_id': self.dataset_name,
-                'productType': product,                
+                'productType': product,
                 'bbox': self.bbox,
                 'startdate': f"{self.dates[0]}T00:00:00.000Z",
                 'enddate': f"{self.dates[1]}T23:59:59.999Z"
             }
 
-            # Realizar búsqueda
-            """try:
-                matches = self.conn.search(query)
-                print(f"Matches response: {matches}")
-
-                # Filtrar coincidencias que contengan "T29" en el ID
-                filtered_matches = [result for result in matches.results if "T29" in result['id']]
-                print(f"Found {len(filtered_matches)} matches for product: {product} in zone T29")
-
-                # Seleccionar solo las coincidencias impares
-                odd_matches = filtered_matches[::2]  # Seleccionar elementos impares
-                print(f"Found {len(odd_matches)} matches in odd positions for product: {product}")
-
-                # Cambiar el directorio de trabajo temporalmente para realizar la descarga
-                os.chdir(self.pyhda)
-                for match in odd_matches:
-                    self.conn.download(match['id'])
-                    print(f"Downloaded {match['id']} successfully.")
-                os.chdir("..")  # Regresar al directorio original si es necesario
-
-            except Exception as e:
-                print(f"Error downloading {product}: {e}")"""
-
             try:
                 matches = self.conn.search(query)
                 print(f"Matches response: {matches}")
 
-                # Filtrar resultados por id que contenga 'T29'
-                filtered_matches = [result for result in matches.results if "T29" in result['id']]
-                print(f"Found {len(filtered_matches)} in zone T29")
+                print(f"Found {len(matches.results)} matches for product: {product}.")
 
-                # Guardar el directorio actual
-                original_dir = os.getcwd()
-                try:
-                    # Cambiar al directorio de destino
-                    os.chdir(self.pyhda)
-
-                    for match in filtered_matches:
-                        print(f"Downloading product {match['id']} from {match['properties']['location']}")
-
-                        # Realizar la descarga utilizando el método `download` de `matches`
-                        try:
-                            download_result = matches.download(match['id'])
-                            print(f"Downloaded {match['id']} successfully.")
-                        except Exception as download_error:
-                            print(f"Failed to download {match['id']} due to: {download_error}")
-
-                except Exception as e:
-                    print(f"Error downloading {product}: {e}")
-                
-                finally:
-                    # Volver al directorio original
-                    os.chdir(original_dir)
+                # Descargar todos los productos encontrados
+                matches.download(download_dir=self.pyhda)
+                print(f"Downloaded all products for {product} successfully.")
 
             except Exception as e:
                 print(f"Error downloading {product}: {e}")
 
 
+
+
     def filter_tiles(self):
+
         """
-        Filtra los archivos TIFF para eliminar aquellos que pertenecen al huso 30.
+        Filtra los archivos TIFF para mantener solo aquellos que pertenecen a los husos UTM de interés.
         """
         print("Filtering tiles...")
         for root, _, files in os.walk(self.pyhda):
             for file in files:
-                if file.endswith(".tif") and "T30" in file:
-                    file_path = os.path.join(root, file)
-                    print(f"Removing tile from huso 30: {file_path}")
-                    os.remove(file_path)
+                if file.endswith(".tif"):
+                    # Si el archivo no pertenece a ninguno de los husos UTM de interés, se elimina
+                    if not any(utm_zone in file for utm_zone in self.utm_zones):
+                        file_path = os.path.join(root, file)
+                        print(f"Removing tile not in UTM zones {self.utm_zones}: {file_path}")
+                        os.remove(file_path)
 
 
     
 
     def mosaic_and_clip(self):
 
-        # Recorrer subcarpetas dentro de `self.pyhda`
+        # Filtrar solo los archivos en self.pyhda que corresponden a los tiles T29
         self.filter_tiles()
 
-        for folder in os.listdir(self.pyhda):
-            subfolder_path = os.path.join(self.pyhda, folder)
-            if os.path.isdir(subfolder_path):  # Verificar que es una carpeta
-                rasters = {}
+        # Diccionario para agrupar rasters por fecha y producto
+        rasters = {}
 
-                # Agrupar por fecha y producto usando el nombre del archivo en cada subcarpeta
-                for i in os.listdir(subfolder_path):
-                    if i.endswith('.tif'):
-                        date = i.split('_')[1][:8]  # Extraer la fecha (primeros 8 caracteres de la fecha)
-                        product = i.split('_')[-1][:-4]  # Extraer el nombre del producto (el sufijo sin la extensión)
+        # Agrupar por fecha y producto usando el nombre del archivo
+        for file in os.listdir(self.pyhda):
+            if file.endswith('.tif'):
+                date = file.split('_')[1][:8]  # Extraer la fecha
+                product = file.split('_')[-1][:-4]  # Extraer el nombre del producto
 
-                        if date not in rasters:
-                            rasters[date] = {}
-                        if product not in rasters[date]:
-                            rasters[date][product] = []
+                if date not in rasters:
+                    rasters[date] = {}
+                if product not in rasters[date]:
+                    rasters[date][product] = []
 
-                        rasters[date][product].append(os.path.join(subfolder_path, i))
+                rasters[date][product].append(os.path.join(self.pyhda, file))
 
-                # Crear mosaicos y recortar para cada grupo de fecha y producto
-                for date, products in rasters.items():
-                    for product, paths in products.items():
-                        try:
-                            print(f"Mosaicking and clipping for date {date} and product {product}...")
-                            # Crear una lista de fuentes de raster
-                            nrasters = [rasterio.open(path) for path in paths]
+        # Crear mosaicos y recortar para cada grupo de fecha y producto
+        for date, products in rasters.items():
+            for product, paths in products.items():
+                try:
+                    print(f"Mosaicking and clipping for date {date} and product {product}...")
+                    # Crear una lista de fuentes de raster
+                    nrasters = [rasterio.open(path) for path in paths]
 
-                            # Crear el mosaico
-                            mosaic, out_trans = merge(nrasters)
+                    # Crear el mosaico
+                    mosaic, out_trans = merge(nrasters)
 
-                            # Actualizar metadatos para el archivo de salida
-                            out_meta = nrasters[0].meta.copy()
-                            out_meta.update({
-                                "driver": "GTiff",
-                                "height": mosaic.shape[1],
-                                "width": mosaic.shape[2],
-                                "transform": out_trans,
-                                "crs": self.crs
-                            })
+                    # Actualizar metadatos para el archivo de salida
+                    out_meta = nrasters[0].meta.copy()
+                    out_meta.update({
+                        "driver": "GTiff",
+                        "height": mosaic.shape[1],
+                        "width": mosaic.shape[2],
+                        "transform": out_trans,
+                        "crs": nrasters[0].crs  # Asegurar que el CRS está definido
+                    })
 
-                            # Definir nombres de archivo de salida en la carpeta principal `self.pyhda`
-                            out_mosaic = os.path.join(self.pyhda, f"mosaic_{date}_{product}.tif")
-                            out_mosaic_rec = os.path.join(self.pyhda, f"mosaic_{date}_{product}_rec.tif")
+                    # Definir nombres de archivo de salida
+                    out_mosaic = os.path.join(self.pyhda, f"mosaic_{date}_{product}.tif")
+                    out_mosaic_rec = os.path.join(self.pyhda, f"mosaic_{date}_{product}_rec.tif")
 
-                            # Guardar el mosaico
-                            with rasterio.open(out_mosaic, "w", **out_meta) as dest:
-                                dest.write(mosaic)
+                    # Guardar el mosaico
+                    with rasterio.open(out_mosaic, "w", **out_meta) as dest:
+                        dest.write(mosaic)
 
-                            # Convertir la geometría a los límites del CRS de salida (en caso de diferencias)
-                            shapes = [self.gdf_proj.to_crs(out_meta['crs']).geometry.unary_union]
+                    # Re-proyectar la geometría al CRS del raster
+                    site_geom = self.gdf.to_crs(out_meta['crs']).geometry.unary_union
 
-                            # Verificar que el recorte se va a hacer con el mismo CRS
-                            print(f"CRS del shapefile para el recorte: {out_meta['crs']}")
+                    # Verificar la superposición
+                    raster_geom = box(*out_meta['transform'] * (0, 0),
+                                      *out_meta['transform'] * (out_meta['width'], out_meta['height']))
 
-                            # Realizar el recorte
-                            with rasterio.open(out_mosaic) as src_:
-                                out_image, out_transform = mask(src_, shapes, crop=True)
-                                out_meta = src_.meta
+                    if not raster_geom.intersects(site_geom):
+                        print(f"La geometría y el raster no se superponen para la fecha {date} y producto {product}.")
+                        continue  # Saltar al siguiente
 
-                            # Actualizar metadatos para el archivo recortado
-                            out_meta.update({
-                                "driver": "GTiff",
-                                "height": out_image.shape[1],
-                                "width": out_image.shape[2],
-                                "transform": out_transform
-                            })
+                    # Realizar el recorte
+                    with rasterio.open(out_mosaic) as src_:
+                        out_image, out_transform = mask(src_, [site_geom], crop=True)
+                        out_meta = src_.meta
 
-                            # Guardar el archivo recortado
-                            with rasterio.open(out_mosaic_rec, "w", **out_meta) as dest:
-                                dest.write(out_image)
+                    # Actualizar metadatos para el archivo recortado
+                    out_meta.update({
+                        "driver": "GTiff",
+                        "height": out_image.shape[1],
+                        "width": out_image.shape[2],
+                        "transform": out_transform
+                    })
 
-                        except Exception as e:
-                            print(f"Error processing date {date} and product {product}: {e}")
-                            continue
+                    # Guardar el archivo recortado
+                    with rasterio.open(out_mosaic_rec, "w", **out_meta) as dest:
+                        dest.write(out_image)
+
+                except Exception as e:
+                    print(f"Error processing date {date} and product {product}: {e}")
+                    continue
+
 
                     
     def clean(self):
@@ -298,7 +287,7 @@ class wekeo_download:
                 shutil.rmtree(file_path)
                 print(f"Deleted directory: {file_path}")
             # Si es un archivo y no cumple la condición de ".rec.tif", eliminarlo
-            elif os.path.isfile(file_path) and not filename.endswith('.rec.tif'):
+            if not filename.endswith('_rec.tif'):
                 os.remove(file_path)
                 print(f"Deleted file: {file_path}")
 
