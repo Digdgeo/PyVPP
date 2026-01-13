@@ -1,15 +1,16 @@
 name: Publish Python distributions to PyPI
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main  # Cambiado de master a main
+  workflow_dispatch: # Esto permite lanzarlo a mano desde el botón
 
 jobs:
   build-n-publish:
     name: Build and publish Python distributions to PyPI
     runs-on: ubuntu-latest
     permissions:
-      # Esta sección es crucial para la autenticación OIDC (Trusted Publishing)
       id-token: write
       contents: read
 
@@ -31,5 +32,3 @@ jobs:
 
     - name: Publish package distributions to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      # Con OIDC configurado en PyPI, no necesitas secretos de API Token aquí
-
