@@ -2,7 +2,6 @@ name: Publish Python Package
 
 on:
   release:
-    types: [published]
 
 jobs:
   build-and-publish:
@@ -32,4 +31,5 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
           twine upload dist/*
+
 
