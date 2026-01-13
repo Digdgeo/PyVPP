@@ -17,3 +17,10 @@ global-exclude *.pyo
 global-exclude __pycache__
 global-exclude .DS_Store
 global-exclude *.so
+
+# Exclude git metadata
+exclude .git
+recursive-exclude .git *
+
+# Ensure package files are included
+recursive-include pyvpp *.py
