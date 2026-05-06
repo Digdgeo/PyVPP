@@ -1,6 +1,8 @@
 # PyVPP
 
-Python package to download and preprocess High Resolution Vegetation Phenology and Productivity products (HR-VPP) from Copernicus Land Monitoring Service.
+Python package to download and preprocess vegetation products from Copernicus services:
+- **HR-VPP** (High Resolution Vegetation Phenology and Productivity) via WEkEO
+- **Sentinel-2 L2A** raw data via CDSE (Copernicus Data Space Ecosystem)
 
 [![PyPI version](https://badge.fury.io/py/pyvpp.svg)](https://badge.fury.io/py/pyvpp)
 
@@ -31,7 +33,11 @@ pip install pyvpp
 
 ## Quick Start
 
-### 1. Configure your WEkEO credentials
+PyVPP supports two main workflows:
+
+### A. HR-VPP Products (WEkEO)
+
+#### 1. Configure your WEkEO credentials
 
 ```python
 import pyvpp
@@ -40,9 +46,9 @@ import pyvpp
 pyvpp.create_hdarc("your_wekeo_username", "your_wekeo_password")
 ```
 
-### 2. Download data
+#### 2. Download HR-VPP data
 
-#### Option A: Phenology parameters (RECOMMENDED - WORKING)
+##### Phenology parameters (RECOMMENDED - WORKING)
 
 ```python
 import pyvpp
@@ -58,7 +64,7 @@ downloader = pyvpp.wekeo_download(
 downloader.run()
 ```
 
-#### Option B: Seasonal Trajectories - PPI (RECOMMENDED - WORKING)
+##### Seasonal Trajectories - PPI (RECOMMENDED - WORKING)
 
 ```python
 import pyvpp
@@ -74,7 +80,7 @@ downloader = pyvpp.wekeo_download(
 downloader.run()
 ```
 
-#### Option C: Vegetation Indices (⚠️ CURRENTLY NOT AVAILABLE)
+##### Vegetation Indices (⚠️ CURRENTLY NOT AVAILABLE)
 
 ```python
 import pyvpp
@@ -90,6 +96,129 @@ downloader = pyvpp.wekeo_download(
 
 # This will fail with: 404 Client Error
 ```
+
+---
+
+### B. Sentinel-2 Raw Data (CDSE)
+
+**New in v0.4.0**: Download Sentinel-2 L2A products directly from CDSE.
+
+#### 1. Configure CDSE credentials
+
+You have three options:
+
+**Option 1: Configuration file (recommended)**
+```bash
+mkdir -p ~/.pyvpp
+cat > ~/.pyvpp/config.toml << EOF
+[cdse]
+user = "your_email@example.com"
+password = "your_password"
+EOF
+```
+
+**Option 2: Environment variables**
+```bash
+export CDSE_USER="your_email@example.com"
+export CDSE_PASSWORD="your_password"
+```
+
+**Option 3: Direct in code**
+```python
+from pyvpp.cdse import load_cdse_credentials
+# Credentials passed directly to CDSEDownload
+```
+
+Register at: https://dataspace.copernicus.eu/
+
+#### 2. Download Sentinel-2 data
+
+**L2A - Bottom of Atmosphere (Default - Atmospherically Corrected)**
+```python
+from pyvpp import CDSEDownload
+
+# Download Sentinel-2 L2A products (recommended for most use cases)
+downloader = CDSEDownload(
+    shape='path/to/your/area.shp',  # or DEIMS ID
+    dates=('2023-06-01', '2023-06-30'),
+    bands=['B04', 'B08'],  # Red, NIR
+    outdir='sentinel2_data',
+    processing_level='L2A',  # Default: atmospherically corrected
+    utm_zone='30T'  # Optional: filter by UTM zone
+)
+
+# Run full pipeline: search -> download -> mosaic -> clip
+downloader.run()
+```
+
+**L1C - Top of Atmosphere (No Atmospheric Correction - for ACOLITE, etc.)**
+```python
+from pyvpp import CDSEDownload
+
+# Download Sentinel-2 L1C products (TOA reflectance)
+# Useful for custom atmospheric correction (ACOLITE, Sen2Cor, etc.)
+downloader = CDSEDownload(
+    shape='path/to/your/area.shp',
+    dates=('2023-06-01', '2023-06-30'),
+    bands=['B04', 'B08'],
+    outdir='sentinel2_L1C',
+    processing_level='L1C'  # Top of Atmosphere
+)
+
+downloader.run()
+```
+
+**Output**: one mosaic per requested band **per acquisition date**, organized
+in subfolders `<outdir>/YYYYMMDD_s2msi/`. Files are named
+`YYYYMMDD_s2msi_<alias>.tif` (e.g. `20230610_s2msi_b04_red.tif`).
+Each band is delivered in its native resolution (10 m or 20 m);
+the SCL band keeps its uint8 dtype.
+
+**Processing Level Comparison:**
+- `L2A` (default): Bottom of Atmosphere - atmospherically corrected, ready for analysis
+- `L1C`: Top of Atmosphere - raw reflectance, use for custom atmospheric correction with tools like ACOLITE
+
+#### Available Sentinel-2 bands
+
+Reflectance bands (any combination of resolutions can be requested in a single call):
+
+| Band  | Alias        | Resolution | Description                   |
+|-------|--------------|------------|-------------------------------|
+| `B02` | `b02_blue`   | 10 m       | Blue                          |
+| `B03` | `b03_green`  | 10 m       | Green                         |
+| `B04` | `b04_red`    | 10 m       | Red                           |
+| `B08` | `b08_nir`    | 10 m       | NIR (broad, 842 nm)           |
+| `B01` | `b01_coastal`| 20 m       | Coastal aerosol               |
+| `B05` | `b05_re1`    | 20 m       | Red-edge 1                    |
+| `B06` | `b06_re2`    | 20 m       | Red-edge 2                    |
+| `B07` | `b07_re3`    | 20 m       | Red-edge 3                    |
+| `B8A` | `b8a_nir`    | 20 m       | NIR (narrow, 865 nm)          |
+| `B11` | `b11_swir1`  | 20 m       | SWIR 1                        |
+| `B12` | `b12_swir2`  | 20 m       | SWIR 2                        |
+
+Cloud / scene-classification mask (L2A only):
+
+| Band  | Alias  | Resolution | Description                                        |
+|-------|--------|------------|----------------------------------------------------|
+| `SCL` | `scl`  | 20 m       | Sen2Cor Scene Classification Layer (categorical)   |
+
+Example use cases:
+```python
+# NDVI calculation
+CDSEDownload(shape='area.shp', dates=('2023-01-01', '2023-12-31'), bands=['B04', 'B08'])
+
+# RGB visualization
+CDSEDownload(shape='area.shp', dates=('2023-01-01', '2023-12-31'), bands=['B02', 'B03', 'B04'])
+
+# Water mask / turbidity (mixes 10 m + 20 m + categorical SCL)
+CDSEDownload(
+    shape='area.shp',
+    dates=('2023-01-01', '2023-12-31'),
+    bands=['B02', 'B03', 'B04', 'B08', 'B11', 'B12', 'SCL'],
+)
+```
+
+---
 
 ## Available Datasets & Products
 
@@ -253,11 +382,15 @@ Check the [official documentation](https://land.copernicus.eu/pan-european/bioph
 
 ## Requirements
 
-- Python >= 3.8
-- hda >= 2.18
-- geopandas >= 0.8.2
+- Python >= 3.9
+- requests >= 2.28
+- geopandas >= 0.12
 - rasterio >= 1.3
-- deims >= 4.0
+- pyproj >= 3.4
+- shapely >= 1.8
+- deims >= 3.1
+- fiona >= 1.8.20
+- hda >= 2.18 (for WEkEO only)
 
 ## Documentation & Support
 
@@ -285,18 +418,26 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
-### v0.1.9 (Current)
-- Updated .hdarc format for new HDA API (March 2024+)
-- Added direct credential support
-- Improved error handling
-- Added helper functions: create_hdarc(), clean_old_hdarc(), delete_hdarc()
-- **Note**: VPP_Index dataset currently unavailable (404 error)
+### v1.0.0 (Current)
+- **Per-date output**: mosaics organized in `YYYYMMDD_s2msi/` subfolders, one per acquisition date
+- **Landsat-style naming**: `YYYYMMDD_s2msi_<alias>.tif` (e.g. `20230610_s2msi_b04_red.tif`)
+- **Red-edge bands**: B05, B06, B07, B8A now fully supported
+- **Token auto-refresh**: prevents `401 Unauthorized` on long download sessions
+- **Resume support**: already-extracted SAFE directories are skipped on re-run
+- **geopandas >= 0.14** required (fixes fiona 1.10+ compatibility)
 
-### v0.1.8
-- Previous stable version
-- Works with old HDA API (pre-March 2024)
+### v0.4.0
+- Added CDSE (Copernicus Data Space Ecosystem) support for Sentinel-2 L2A/L1C
+- New module `pyvpp.cdse` with `CDSEDownload` class
+- Multi-resolution support (10 m + 20 m + SCL in a single call)
+- Per-band output files in native resolution
+- Authentication via config file, env vars, or direct credentials
+
+### v0.1.9
+- Fixed `.hdarc` format for HDA API v2.18+
+- Added `create_hdarc()`, `clean_old_hdarc()`, `delete_hdarc()` helpers
 
 ---
 
-**Last updated**: January 2025  
-**Status**: VPP_ST ✅ | VPP_Pheno ✅ | VPP_Index ⚠️ (unavailable)
+**Last updated**: May 2026
+**Status**: VPP_ST ✅ | VPP_Pheno ✅ | VPP_Index ⚠️ (unavailable) | CDSE Sentinel-2 ✅

@@ -1,14 +1,17 @@
 # Core dependencies for PyVPP
-hda>=2.18
-deims>=4.0
-geopandas>=0.8.2
-pyproj>=3.0
+# Required for both WEkEO and CDSE functionality
+requests>=2.28
+geopandas>=0.14
 rasterio>=1.3
-requests>=2.20
-fiona>=1.8.20
+pyproj>=3.4
 shapely>=1.8
+deims>=3.1
+fiona>=1.8.20
+
+# WEkEO-specific dependencies
+hda>=2.18
 
 # Optional development dependencies
 # Uncomment if needed for development:
-# pytest>=7.2.1
-# black>=23.1.0
+# pytest>=7.2
+# black>=23.1

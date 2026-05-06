@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-06
+
+### ✨ Added
+- **Per-date output**: mosaics are now organized by acquisition date under
+  `<outdir>/YYYYMMDD_s2msi/`, one subfolder per date.
+- **Red-edge bands**: `B05`, `B06`, `B07` and `B8A` now fully supported
+  alongside the existing 10 m and SWIR bands.
+- **Consistent band naming**: output filenames follow the Landsat-style
+  convention `YYYYMMDD_s2msi_<alias>.tif` (e.g. `20230610_s2msi_b05_re1.tif`).
+  Band aliases: `b02_blue`, `b03_green`, `b04_red`, `b05_re1`, `b06_re2`,
+  `b07_re3`, `b08_nir`, `b8a_nir`, `b11_swir1`, `b12_swir2`, `scl`.
+- **Token auto-refresh**: CDSE access token is renewed before every product
+  download, preventing `401 Unauthorized` errors on long sessions (tokens
+  expire in ~10 min, downloads take much longer).
+- **Resume after partial failure**: `download()` skips already-extracted
+  SAFE directories, so re-running after a network interruption picks up
+  where it left off without re-downloading.
+- **`mosaic_per_band` naming hook**: new `out_stem_fn` parameter lets callers
+  control the output filename stem without subclassing.
+
+### 🔧 Changed
+- Minimum `geopandas` version bumped to `>=0.14` (fixes `fiona.path`
+  compatibility issue with fiona 1.10+).
+- `CDSEDownload.download()` now returns `dict[str, dict[str, list[str]]]`
+  (`{date: {band: [jp2_paths]}}`), grouped by acquisition date.
+
+### 🗑️ Deprecated
+- `mosaic_and_clip` still emits a `DeprecationWarning`; no further changes.
+
+## [0.4.0] - 2026-05-05
+
+### ✨ Added
+- **CDSE module** (`pyvpp.cdse`): download Sentinel-2 L1C/L2A products directly
+  from the Copernicus Data Space Ecosystem.
+- `CDSEDownload` class with AOI search (shapefile or DEIMS ID), UTM zone
+  filter, automatic mosaicking and clipping.
+- Multi-resolution support: any combination of 10 m bands (B02, B03, B04, B08)
+  and 20 m bands (B01, B05–B07, B8A, B11, B12) in a single call.
+- Scene Classification Layer (`SCL`) as a first-class band (L2A only),
+  merged with nearest-neighbour resampling to preserve its categorical
+  class IDs.
+- Per-band output: each requested band produces its own
+  `mosaic_<BAND>_rec.tif`, in its native resolution and dtype.
+- Authentication via env vars (`CDSE_USER` / `CDSE_PASSWORD`),
+  `~/.pyvpp/config.toml`, or direct credentials.
+
+### 🔧 Changed
+- Project layout reorganised into submodules: `pyvpp.wekeo` (HR-VPP via WEkEO,
+  unchanged behaviour) and `pyvpp.cdse` (new).
+- Minimum Python version bumped to 3.9.
+
+### 🐛 Fixed
+- Fixed a broken import in `pyvpp.cdse.auth` that prevented the CDSE module
+  from loading (`from pyvpp.config` → `from pyvpp.cdse.config`).
+
+### 🗑️ Deprecated
+- `pyvpp.cdse.mosaic.mosaic_and_clip` (single-mosaic, multi-band output).
+  Use `mosaic_per_band` instead. The old function still works but emits a
+  `DeprecationWarning`.
+
 ## [0.1.9] - 2025-01-13
 
 ### 🔴 CRITICAL Changes
